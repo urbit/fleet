@@ -1,0 +1,17 @@
+#!/bin/bash
+set -e
+for ship; do
+  if [ 3 = ${#ship} ]; then
+    screen -X screen -t $ship
+    screen -X stuff "~/urbit/bin/urbit -cA ~/urbit/arvo -FI $ship $ship\n"
+  elif [ 6 = ${#ship} ] || [ 13 = ${#ship} ] ; then
+    sein=$(~/bin/urb -d "(sein ~$ship)" 2>/dev/null)  # XX figure out port
+    ticket=$(~/bin/urb ${sein:1} -d "+ticket ~$ship")
+    screen -X screen -t $ship
+    screen -X stuff "~/urbit/bin/urbit -cFw $ship -t $ticket\n"
+  else
+    echo >&2 "Weird ship $ship, length ${#ship}"
+    exit 1
+  fi
+  ~/bin/wait-for $ship/home
+done 

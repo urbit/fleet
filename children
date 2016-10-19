@@ -1,0 +1,11 @@
+#!/bin/bash
+set -e
+count=$1
+shift
+for ship
+{
+  for n in `seq 1 $count`
+  {
+    ~/bin/urb $ship -d '`@p`(rep (max 3 (xeb (xeb our))) our 0i'$n' ~)' | sed s/.// # strip leading ~
+  }
+}

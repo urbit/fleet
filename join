@@ -1,0 +1,17 @@
+#!/bin/bash
+chan=$1
+shift
+ships=$@
+spam (){
+  for ship in $ships
+  {
+    echo urb $ship $@
+    ~/bin/urb $ship "$@" &
+  }
+  for job in `jobs -p`
+  {
+    wait $job
+  }
+}
+spam -p talk -d "+talk/federate %porch [(sein our) %$chan]"
+

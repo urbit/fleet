@@ -1,0 +1,9 @@
+#!/bin/bash
+for arg
+do
+  until [ -d $arg ] || [ -f $arg ]
+  do
+       sleep 5
+  done
+  echo Found $arg
+done
