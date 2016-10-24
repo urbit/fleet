@@ -4,8 +4,12 @@ for ship; do
   echo Starting $ship
   args='TRAP'
   if [ 3 = ${#ship} ]; then
-    if [ -d $ship ]; then args="-I $ship $ship"
-    else args="-cA ~/urbit/arvo -I $ship $ship"
+    args="-I $ship $ship"
+    if [ ! -d $ship ]; then
+      args="-cA ~/urbit/arvo $args"
+      if [ -z "$FAKE" ]; then
+        args="-G 0w0 $args"
+      fi
     fi
   elif [ 6 = ${#ship} ] || [ 13 = ${#ship} ] ; then
     if [ -d $ship ]; then args="$ship"

@@ -19,6 +19,7 @@ Contents of this directory should be copied to ~/bin/
 - arvo @ automount
 - screen
 - ~/bin in PATH
+- jq
 
 ## Testnet
 
