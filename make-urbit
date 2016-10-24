@@ -1,0 +1,32 @@
+#!/bin/bash
+set -e
+for ship; do
+  echo Starting $ship
+  args='TRAP'
+  if [ 3 = ${#ship} ]; then
+    if [ -d $ship ]; then args="-I $ship $ship"
+    else args="-cA ~/urbit/arvo -I $ship $ship"
+    fi
+  elif [ 6 = ${#ship} ] || [ 13 = ${#ship} ] ; then
+    if [ -d $ship ]; then args="$ship"
+    else
+      sein=$(urb -d "(sein ~$ship)" 2>/dev/null)  # XX figure out port
+      if [ ! -d ${sein:1} ]; then
+        ${BASH_SOURCE[0]} ${sein:1}
+      fi
+      ticket=$(urb ${sein:1} -d "+ticket ~$ship")
+      #
+      args="-cw $ship -t $ticket"
+    fi
+  else
+    echo >&2 "Weird ship $ship, length ${#ship}"
+    exit 1
+  fi
+  if [ "$FAKE" ]; then
+    args="-F $args"
+  fi
+#   screen -Q 'select' $ship >/dev/null && screen -X 'kill'
+  screen -X screen -t $ship
+  screen -X stuff "~/urbit/bin/urbit $args\n"
+  wait-for $ship/home
+done 

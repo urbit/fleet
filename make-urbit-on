@@ -1,0 +1,45 @@
+#!/bin/bash
+set -e
+targets=$1
+shift
+for ship
+{
+  echo "--  $ship"
+  if [ ! -d $ship/ ]
+    mkdir -p $ship/.urb
+    touch $ship/.urb/PROXY
+    instance=$(shuf -n 1 -e $targets)
+    echo $instance > $ship/.urb/instance-name
+    echo "Starting on $instance"
+  elif [ ! -d $ship/.urb ]
+    echo "Non-ship directory"
+    exit 1
+  elif [ ! -f $ship/.urb/PROXY ]
+    echo "Found real ship."
+    exit 1
+  else
+    read instance < $ship/.urb/instance-name
+    if ! echo $targets | grep -q $instance
+      echo "Already running on $instance, not in [$targets]"
+      exit 1
+    else
+      echo "Restarting on $instance"
+    fi
+  fi
+
+  gcloud compute ssh urb@$instance "cd ~/piers; make-urbit $ship"
+
+  if  [ -f $ship/.urb/ports.json ] && 
+      nc -z localhost (jq .loopback $ship/.urb/ports.json)
+    echo "Found old port, "(jq .loopback $ship/.urb/ports.json)
+  else
+    echo "Establishing port forward"
+    gcloud compute ssh urb@$instance \
+      "cd ~/piers; cat $ship/.urb/ports.json" \
+      | jq '.loopback' | read remote_port
+    local_port=(~/bin/random-tcp-port.py)
+    gcloud compute ssh urb@$instance -- -fNL $local_port:localhost:$remote_port
+    jq "{loopback:$local_port}" > ports.json
+  fi
+  ~/bin/urb $ship -d '[our %port-forwarding-up]'
+}
