@@ -14,7 +14,7 @@ for ship; do
   elif [ 6 = ${#ship} ] || [ 13 = ${#ship} ] ; then
     if [ -d $ship ]; then args="$ship"
     else
-      sein=$(urb -d "(sein ~$ship)" 2>/dev/null)  # XX figure out port
+      sein=$(~/bin/urb -d "(sein ~$ship)" 2>/dev/null)  # XX figure out port
       if [ ! -d ${sein:1} ]; then
         ${BASH_SOURCE[0]} ${sein:1}
       fi
@@ -29,8 +29,9 @@ for ship; do
   if [ "$FAKE" ]; then
     args="-F $args"
   fi
-#   screen -Q 'select' $ship >/dev/null && screen -X 'kill'
+  screen -Q 'select' -; screen -Q 'select' $ship >/dev/null && screen -X 'kill'
   screen -X screen -t $ship
   screen -X stuff "~/urbit/bin/urbit $args\n"
-  wait-for $ship/home
+  ~/bin/wait-next $ship/.urb/ports.json
+  ~/bin/wait-for $ship/home
 done 
