@@ -1,0 +1,57 @@
+#!/bin/bash
+set -e
+targets=$1
+shift
+for ship
+{
+  echo "--  $ship"
+  if [ ! -d $ship/ ]; then
+    new="y"
+    instance=$(gshuf -n 1 -e $targets)
+    echo "Starting on $instance"
+  elif [ ! -d $ship/.urb ]; then
+    echo "Non-ship directory"
+    exit 1
+  elif [ ! -f $ship/.urb/PROXY ]; then
+    echo "Found real ship."
+    exit 1
+  else
+    read instance < $ship/.urb/PROXY
+    if ! echo $targets | grep -q $instance; then
+      echo "Already running on $instance, not in [$targets]"
+      exit 1
+    else
+      echo "Restarting on $instance"
+    fi
+  fi
+
+  ARGS=$(~/bin/make-urbit $ship)
+  gcloud compute ssh vere@$instance -- "cd ~/piers; ~/bin/start-urbit $ship $ARGS"
+
+  if [ "$new" ]; then
+    mkdir -p $ship/.urb
+    echo $instance > $ship/.urb/PROXY
+  fi
+  
+  if  [ -f $ship/.urb/ports.json ] && 
+      nc -z localhost $(jq .loopback $ship/.urb/ports.json); then
+    echo "Found old port, "$(jq .loopback $ship/.urb/ports.json)
+  else
+    echo "Establishing port forward"
+    remote_port=$(
+      gcloud compute ssh vere@$instance -- \
+        "cd ~/piers; cat $ship/.urb/ports.json" \
+        | jq '.loopback'
+      )
+    echo "remote: $remote_port"
+    local_port=12421
+    while nc -z localhost $local_port; do  # can connect
+      local_port=$((local_port+1))
+    done
+    echo "local: $local_port"
+    
+    gcloud compute ssh vere@$instance -- -fNL $local_port:localhost:$remote_port
+    jq -n "{loopback:$local_port}" > $ship/.urb/ports.json
+  fi
+  ~/bin/urb $ship -d '[our %port-forwarding-up]'
+}

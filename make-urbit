@@ -1,36 +1,32 @@
 #!/bin/bash
 set -e
-for ship; do
-  echo Starting $ship
-  args='TRAP'
-  if [ 3 = ${#ship} ]; then
-    args="-I $ship $ship"
-    if [ ! -d $ship ]; then
-      args="-cA ~/urbit/arvo $args"
-      if [ -z "$FAKE" ]; then
-        args="-G 0w0 $args"
-      fi
+ship=$1
+echo >&2 Starting $ship
+args='TRAP'
+if [ 3 = ${#ship} ]; then
+  args="-I $ship $ship"
+  if [ ! -d $ship ]; then
+    args="-cA ~/urbit/arvo $args"
+    if [ -z "$FAKE" ]; then
+      args="-G 0w0 $args"
     fi
-  elif [ 6 = ${#ship} ] || [ 13 = ${#ship} ] ; then
-    if [ -d $ship ]; then args="$ship"
-    else
-      sein=$(urb -d "(sein ~$ship)" 2>/dev/null)  # XX figure out port
-      if [ ! -d ${sein:1} ]; then
-        ${BASH_SOURCE[0]} ${sein:1}
-      fi
-      ticket=$(urb ${sein:1} -d "+ticket ~$ship")
-      #
-      args="-cw $ship -t $ticket"
-    fi
+  fi
+elif [ 6 = ${#ship} ] || [ 13 = ${#ship} ] ; then
+  if [ -d $ship ]; then args="$ship"
   else
-    echo >&2 "Weird ship $ship, length ${#ship}"
-    exit 1
+    sein=$(urb -d "(sein ~$ship)" 2>/dev/null)  # XX figure out port
+    if [ ! -d ${sein:1} ]; then
+      ~/bin/start-urbit ${sein:1}
+    fi
+    ticket=$(urb ${sein:1} -d "+ticket ~$ship")
+    #
+    args="-cw $ship -t $ticket"
   fi
-  if [ "$FAKE" ]; then
-    args="-F $args"
-  fi
-#   screen -Q 'select' $ship >/dev/null && screen -X 'kill'
-  screen -X screen -t $ship
-  screen -X stuff "~/urbit/bin/urbit $args\n"
-  wait-for $ship/home
-done 
+else
+  echo >&2 "Weird ship $ship, length ${#ship}"
+  exit 1
+fi
+if [ "$FAKE" ]; then
+  args="-F $args"
+fi
+echo $args

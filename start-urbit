@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+ship=$1
+shift
+screen -Q 'select' $ship >/dev/null && screen -X 'kill'
+screen -X screen -t $ship
+screen -X stuff "~/urbit/bin/urbit $@\n"
+wait-for $ship/home 
