@@ -1,0 +1,10 @@
+#!/bin/bash
+for arg
+do
+  prev=$([ ! -f $arg ] || stat -c %Y $arg)
+  until [ -f $arg ] && [ "$prev" != "$(stat -c %Y $arg)" ]
+  do
+       sleep 5
+  done
+  echo Touch seen $arg
+done
