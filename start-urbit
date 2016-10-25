@@ -4,6 +4,6 @@ ship=$1
 shift
 screen -Q 'select' -; screen -Q 'select' $ship >/dev/null && screen -X 'kill'
 screen -X screen -t $ship
-screen -X stuff "~/urbit/bin/urbit $@\n"
+screen -X stuff "~/urbit/bin/urbit $(printf '%s ' $@)\n"
 ~/bin/wait-next $ship/.urb/ports.json
 ~/bin/wait-for $ship/home
