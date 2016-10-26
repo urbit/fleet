@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
 for ship; do
-  FAKE=y ~/bin/start-urbit $ship $(~/bin/make-urbit $ship)
+  export FAKE=y
+  ~/bin/start-urbit $ship $(~/bin/make-urbit $ship)
 done 
