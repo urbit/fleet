@@ -6,5 +6,5 @@ do
   do
        sleep 5
   done
-  echo Touch seen $arg
+  echo New $arg
 done
