@@ -26,6 +26,7 @@ for ship
   fi
 
   ARGS=$(~/bin/make-urbit $ship)
+  echo ssh vere@$instance ~/bin/start-urbit $ship
   gcloud compute ssh vere@$instance -- "cd ~/piers; ~/bin/start-urbit $ship $ARGS"
 
   if [ "$new" ]; then
@@ -45,12 +46,13 @@ for ship
       )
     echo "remote: $remote_port"
     local_port=12421
-    while nc -z localhost $local_port; do  # can connect
+    while nc -z localhost $local_port >/dev/null; do  # can connect
       local_port=$((local_port+1))
     done
     echo "local: $local_port"
     
     gcloud compute ssh vere@$instance -- -fNL $local_port:localhost:$remote_port
+    echo "Tunnel established"
     jq -n "{loopback:$local_port}" > $ship/.urb/ports.json
   fi
   ~/bin/urb $ship -d '[our %port-forwarding-up]'
