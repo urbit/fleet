@@ -1,6 +1,6 @@
 # Install
 
-- `git submodule update --init`
+- clone with `--recursive`, or run `git submodule update --init`
 - install `python`, `jq`, and the `urbit` dependencies
 - `make -C urbit/`
 - (optionally) add `$(pwd)/bin/` to `PATH`
@@ -21,9 +21,9 @@
 
 - `FAKE`, set this to use `-F` local fakenet
 
-# Requirements
+# Submodules
 
-These scripts use:
+This repository includes:
 
 - arvo @
   + automount, mounting %home on startup
