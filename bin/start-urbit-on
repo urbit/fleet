@@ -1,4 +1,5 @@
 #!/bin/bash
+fleet_bin="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 set -e
 targets=$1
 shift
@@ -25,9 +26,11 @@ for ship
     fi
   fi
 
-  ARGS=$(~/bin/make-urbit $ship)
-  echo ssh vere@$instance ~/bin/start-urbit $ship
-  gcloud compute ssh vere@$instance -- "cd ~/piers; ~/bin/start-urbit $ship $ARGS"
+  ARGS=$($fleet_bin/make-urbit $ship)
+  echo ssh vere@$instance start-urbit $ship
+  
+  PIERS="${PIERS:-/home/vere/piers}" # default
+  gcloud compute ssh vere@$instance -- "cd $PIERS; start-urbit $ship $ARGS"
 
   if [ "$new" ]; then
     mkdir -p $ship/.urb
@@ -41,7 +44,7 @@ for ship
     echo "Establishing port forward"
     remote_port=$(
       gcloud compute ssh vere@$instance -- \
-        "cd ~/piers; cat $ship/.urb/ports.json" \
+        "cd $PIERS; cat $ship/.urb/ports.json" \
         | jq '.loopback'
       )
     echo "remote: $remote_port"
@@ -55,5 +58,5 @@ for ship
     echo "Tunnel established"
     jq -n "{loopback:$local_port}" > $ship/.urb/ports.json
   fi
-  ~/bin/urb $ship -d '[our %port-forwarding-up]'
+  $fleet_bin/urb $ship -d '[our %port-forwarding-up]'
 }

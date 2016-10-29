@@ -1,4 +1,5 @@
 #!/bin/bash
+fleet_bin="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 set -e
 ship=$1
 echo >&2 Starting $ship
@@ -6,7 +7,7 @@ args='TRAP'
 if [ 3 = ${#ship} ]; then
   args="-I $ship $ship"
   if [ ! -d $ship ]; then
-    args="-cA ~/urbit/arvo $args"
+    args="-cA $(dirname $fleet_bin)/arvo $args"
     if [ -z "$FAKE" ]; then
       args="-G 0w0 $args"
     fi
@@ -14,9 +15,9 @@ if [ 3 = ${#ship} ]; then
 elif [ 6 = ${#ship} ] || [ 13 = ${#ship} ] ; then
   if [ -d $ship ]; then args="$ship"
   else
-    sein=$(urb -d "(sein ~$ship)" 2>/dev/null)  # XX figure out port
+    sein=$($fleet_bin/urb -d "(sein ~$ship)" 2>/dev/null)  # XX figure out port
     if [ ! -d ${sein:1} ]; then
-      ~/bin/start-urbit ${sein:1}
+      $fleet_bin/start-urbit ${sein:1}
     fi
     ticket=$(urb ${sein:1} -d "+ticket ~$ship")
     #

@@ -1,4 +1,5 @@
 #!/bin/bash
+fleet_bin="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 set -e
 count=$1
 shift
@@ -6,6 +7,6 @@ for n in `seq 1 $count`
 {
   for ship
   {
-    ~/bin/urb $ship -d '`@p`(rep (max 3 (xeb (xeb our))) our 0i'$n' ~)' | sed s/.// # strip leading ~
+    $fleet_bin/urb $ship -d '`@p`(rep (max 3 (xeb (xeb our))) our 0i'$n' ~)' | sed s/.// # strip leading ~
   }
 }

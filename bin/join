@@ -1,4 +1,5 @@
 #!/bin/bash
+fleet_bin="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 chan=$1
 shift
 ships=$@
@@ -6,7 +7,7 @@ spam (){
   for ship in $ships
   {
     echo urb $ship $@
-    ~/bin/urb $ship "$@" &
+    $fleet_bin/urb $ship "$@" &
   }
   for job in `jobs -p`
   {

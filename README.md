@@ -7,6 +7,8 @@
 
 # Usage
 
+Piers are created in the calling directory, and subsequently restarted from the same.
+
 - `make-urbit ship` will produce the `urbit` arguments to create/restart the **ship**
 - `fake-urbit ship [ship]` will start a local fakenet
 - `start-urbit ship [ship]` will start each **ship** in the current directory, creating them and all parents if necessary. For non-galaxies, at least one ship must already be running to bootstrap `(sein)` calculation.

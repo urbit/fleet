@@ -1,6 +1,7 @@
 #!/bin/bash
+fleet_bin="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 set -e
 for ship; do
   export FAKE=y
-  ~/bin/start-urbit $ship $(~/bin/make-urbit $ship)
+  $fleet_bin/start-urbit $ship $($fleet_bin/make-urbit $ship)
 done 
