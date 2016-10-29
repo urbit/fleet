@@ -1,6 +1,11 @@
-# Usage
+# Install
 
-Contents of this directory should be added to `PATH`
+- `git submodule update --init`
+- install `python`, `jq`, and the `urbit` dependencies
+- `make -C urbit/`
+- (optionally) add `$(pwd)/bin/` to `PATH`
+
+# Usage
 
 - `make-urbit ship` will produce the `urbit` arguments to create/restart the **ship**
 - `fake-urbit ship [ship]` will start a local fakenet
@@ -10,22 +15,23 @@ Contents of this directory should be added to `PATH`
 - `federate channelname ship [ship]` will clear current `%channelname` subscriptions on each **ship**, then link them in a fully connected graph
 - `join channel ship [ship]` will subscribe each **ship** to `/channel`
 
+- `some of them` NOTE: `screen` must be installed
+
 ## Variables
 
 - `FAKE`, set this to use `-F` local fakenet
 
-# Dependencies
+# Requirements
 
-- urbit compiled @ piers-json (TODO: merge)
-- urb.py (should use piers.json)
-- arvo @ automount
-- screen
-- ~/bin in PATH
-- jq
+These scripts use:
 
-## Testnet
-
-- arvo @ testnet, urbit @ testnet
+- arvo @
+  + automount, mounting %home on startup
+  + 0w0-imperator which harcodes the expected carrier `-G` to `0w0`
+- urbit @
+  + ports-json, which writes .urb/ports.json
+  + testzod-urbit-org, which sets the `%ames` bootstrapping dns to `test%s.urbit.org`  
+- an urb.py version which uses ports.json
 
 # Todo
 
@@ -35,7 +41,7 @@ Contents of this directory should be added to `PATH`
 
 ## Variables
 
-- `URBIT` bin/urbit location
+- `URBIT` bin/urbit invocation - use for ssh
 - `SCREEN` to determine which screen session to run new urbits in, leave blank for direct start in same process (daemon mode maybe?)
 
 ## Scripts
