@@ -1,9 +1,0 @@
-#!/bin/bash
-for arg
-do
-  until [ -d $arg ] || [ -f $arg ]
-  do
-       sleep 1
-  done
-  echo Found $arg
-done

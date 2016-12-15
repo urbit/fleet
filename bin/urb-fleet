@@ -1,0 +1,136 @@
+#!/bin/sh
+set -e
+
+if hash gstat 2>/dev/null; then  # Mac workaround
+  alias stat=gstat
+fi
+
+
+SPAM_SHIPS='TRAP' # XX should this really be a global?
+spam (){
+  if [ "$SPAM_SHIPS" == 'TRAP' ]; then
+    echo "Called 'spam' without setting target ships"
+    exit 1
+  fi
+  for ship in $SPAM_SHIPS
+  do
+    echo urb $ship $@
+    urb $ship "$@" &
+  done
+  for job in `jobs -p`
+  do
+    wait $job
+  done
+}
+
+self (){
+  command=$1
+  shift
+  case $command in
+      (urb-fleet)
+    #
+    self $@
+  ;;
+      (wait-ship)
+    for ship; do
+      ports=$ship/.urb/.http.ports
+      prev=$([ ! -f $ports ] || stat -c %Y $ports)
+      until [ -f $ports ] && [ "$prev" != "$(stat -c %y $ports)"  ]; do sleep 1; done
+      echo Found $ports
+      until [ -d $ship/home ]; do sleep 1; done
+      echo Found $ship/home
+    done
+  ;;
+      (join)
+    chan=$1
+    shift
+    SPAM_SHIPS=$@
+    spam -p talk -d "+talk/federate %porch [(sein our) $chan]"
+  ;;
+      (federate)
+    chan=$1
+    shift
+    SPAM_SHIPS=$@
+    spam -p talk -d "+talk/federate %$chan"
+    spam -p talk -d \
+      "+talk/federate %$chan$(for ship; do echo -n ' [~'$ship' %'$chan']'; done)"
+  ;;
+      (make-urbit)
+    #
+    FAKE_ARG=""
+    ARVO=""
+    SESSION_ARG=""
+    while getopts "FA:S:" opt; do
+      case $opt in
+      (F) FAKE_ARG="-F"
+      ;; (A) ARVO="$OPTARG"
+      ;; (S) SESSION_ARG="-S $OPTARG"
+      esac
+    done
+    for ship
+    do
+      self start-urbit $ship $FAKE_ARG $(self make-urbit $ship)
+    done
+  ;;
+      (start-urbit)
+    ship=$1
+    shift
+    sscreen(){ screen $SESSION_ARG $@; }
+    if ! sscreen -X 'select' - >/dev/null; then
+      sscreen -m -d
+    fi
+    sscreen -X 'select' $ship >/dev/null && sscreen -X 'kill'
+    sscreen -X 'screen' -t $ship
+    sscreen -X 'stuff' "urbit $(printf '%s ' $@)\n"
+    self wait-ship $ship
+  ;;
+      (make-urbit)
+    ship=$1
+    echo >&2 Starting $ship
+    args='TRAP'
+    if [ 3 = ${#ship} ]; then
+      args="-I $ship $ship"
+      if [ ! -d $ship ]; then
+        if [ "$ARVO" ]; then
+          args="-G 0w0 -cA $ARVO $args"
+        else
+          echo >&2 "No -A for new galaxy"
+          exit 1
+        fi
+      fi
+    elif [ 6 = ${#ship} ] || [ 13 = ${#ship} ] ; then
+      if [ -d $ship ]; then args="$ship"
+      else
+        sein=$(urb -d "(sein ~$ship)" 2>/dev/null)  # XX figure out port
+        if [ ! -d ${sein:1} ]; then
+          self start-urbit ${sein:1}
+        fi
+        ticket=$(urb ${sein:1} -d "+ticket ~$ship")
+        #
+        args="-cw $ship -t $ticket"
+      fi
+    else
+      echo >&2 "Weird ship $ship, length ${#ship}"
+      exit 1
+    fi
+    echo $args
+  ;;
+      (children)
+    count=$1
+    shift
+    for n in `seq 1 $count`
+    do
+      for ship
+      do
+        NEIS='|=(a/@u ^-(@p (rep (max 3 (xeb (xeb our))) our a ~)))'
+        urb $ship -d "_$NEIS 0i$n" | sed s/.// # strip leading ~
+      done
+    done
+  ;;
+      (*)
+    echo >&2 "Unknown command: $command"
+    exit 1
+  ;;
+  esac
+}
+self "$(basename $0)" $@
