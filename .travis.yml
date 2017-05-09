@@ -1,6 +1,11 @@
 language: c
 script: make -C urbit/
+notifications:
+  email: false
 before_install:
-  - apt update
-  - apt install -y libgmp3-dev libsigsegv-dev openssl libssl-dev libncurses5-dev make exuberant-ctags automake autoconf libtool g++ ragel cmake re2c libcurl4-gnutls-dev python
+  - apt-get update
+  - apt-get install -y
+   libgmp3-dev libsigsegv-dev openssl libssl-dev libncurses5-dev
+   make exuberant-ctags automake autoconf libtool g++ ragel cmake
+   re2c libcurl4-gnutls-dev python
 
