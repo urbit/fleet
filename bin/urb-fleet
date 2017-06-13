@@ -81,13 +81,13 @@ self (){
       (in-screen)
     ship=$1
     shift
-    sscreen(){ screen $SESSION_ARG $@; }
-    if ! sscreen -X 'select' - >/dev/null; then
-      sscreen -m -d
+    S="$SESSION_ARG"
+    if ! screen $S -Q 'select' - >/dev/null; then
+      screen $S -m -d
     fi
-    sscreen -X 'select' $ship >/dev/null && sscreen -X 'kill'
-    sscreen -X 'screen' -t $ship
-    sscreen -X 'stuff' "$(printf '%s ' $@)\n"
+    screen $S -Q 'select' $ship >/dev/null && screen $S -X 'kill'
+    screen $S -X 'screen' -t $ship
+    screen $S -X 'stuff' "$(printf '%s ' $@)\n"
     self wait-ship $ship
   ;;
       (ship-args)
