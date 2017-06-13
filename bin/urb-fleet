@@ -1,10 +1,10 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
 if hash gstat 2>/dev/null; then  # Mac workaround
   alias stat=gstat
 fi
-
+alias urb="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/urb # XX gnuism
 
 SPAM_SHIPS='TRAP' # XX should this really be a global?
 spam (){
@@ -55,7 +55,7 @@ self (){
     spam -p talk -d \
       "+talk/federate %$chan$(for ship; do echo -n ' [~'$ship' %'$chan']'; done)"
   ;;
-      (make-urbit)
+      (start)
     #
     FAKE_ARG=""
     ARVO=""
@@ -66,13 +66,18 @@ self (){
       ;; (A) ARVO="$OPTARG"
       ;; (S) SESSION_ARG="-S $OPTARG"
       esac
+      shift "$((OPTIND - 1))"
     done
     for ship
     do
-      self start-urbit $ship $FAKE_ARG $(self make-urbit $ship)
+      if [ ! "$SESSION_ARG" ]; then
+        urbit $FAKE_ARG $(self ship-args $ship)
+      else
+        self in-screen $ship urbit $FAKE_ARG $(self ship-args $ship)
+      fi
     done
   ;;
-      (start-urbit)
+      (in-screen)
     ship=$1
     shift
     sscreen(){ screen $SESSION_ARG $@; }
@@ -81,10 +86,10 @@ self (){
     fi
     sscreen -X 'select' $ship >/dev/null && sscreen -X 'kill'
     sscreen -X 'screen' -t $ship
-    sscreen -X 'stuff' "urbit $(printf '%s ' $@)\n"
+    sscreen -X 'stuff' "$(printf '%s ' $@)\n"
     self wait-ship $ship
   ;;
-      (make-urbit)
+      (ship-args)
     ship=$1
     echo >&2 Starting $ship
     args='TRAP'
@@ -101,9 +106,11 @@ self (){
     elif [ 6 = ${#ship} ] || [ 13 = ${#ship} ] ; then
       if [ -d $ship ]; then args="$ship"
       else
-        sein=$(urb -d "(sein ~$ship)" 2>/dev/null)  # XX figure out port
+        sein=$(\
+          env LENS_PORT=12321 `# XX figure out port`\
+          urb -d "(sein ~$ship)")
         if [ ! -d ${sein:1} ]; then
-          self start-urbit ${sein:1}
+          self start ${sein:1}
         fi
         ticket=$(urb ${sein:1} -d "+ticket ~$ship")
         #

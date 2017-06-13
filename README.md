@@ -5,15 +5,16 @@
 - `make -C urbit/`
 - (optionally) add `$(pwd)/bin/` to `PATH`
 
+
+
 # Usage
 
 Piers are created in the calling directory, and subsequently restarted from the same.
 
-- `make-urbit ship` will produce the `urbit` arguments to create/restart the **ship**
-- `fake-urbit ship [ship]` will start a local fakenet
-- `start-urbit ship [ship]` will start each **ship** in the current directory, creating them and all parents if necessary. For non-galaxies, at least one ship must already be running to bootstrap `(sein)` calculation.
-- `start-urbit-on instances ship [ship]` will start each **ship** on a randomly chosen instance
-- `children n ship [ship]` will ask each **ship** for the names of their firs **n** children
+- `start ship [ship]` will re/start each **ship** in the current directory, creating them and all parents if necessary. For non-galaxies, at least one ship must already be running to bootstrap `(sein)` calculation.
+- `ship-args ship` will produce the `urbit` arguments to create/restart the **ship**
+- `start-ship ship {args...}` will start a single ship inside screen
+- `children n ship [ship]` will ask each **ship** for the names of their first **n** children
 - `federate channelname ship [ship]` will clear current `%channelname` subscriptions on each **ship**, then link them in a fully connected graph
 - `join channel ship [ship]` will subscribe each **ship** to `/channel`
 
