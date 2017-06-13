@@ -60,11 +60,12 @@ self (){
     FAKE_ARG=""
     ARVO=""
     SESSION_ARG=""
-    while getopts "FA:S:" opt; do
+    while getopts "FA:S:C:" opt; do
       case $opt in
       (F) FAKE_ARG="-F"
       ;; (A) ARVO="$OPTARG"
       ;; (S) SESSION_ARG="-S $OPTARG"
+      ;; (C) cd "$OPTARG"
       esac
       shift "$((OPTIND - 1))"
     done
