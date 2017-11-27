@@ -2,15 +2,12 @@
 fleet_bin="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 set -e
 ship=$1
-echo >&2 Starting $ship
+echo >&2 Creating arguments for starting $ship
 args='TRAP'
 if [ 3 = ${#ship} ]; then
-  args="-I $ship $ship"
+  args="-B $URBIT_PILL -I $ship $ship"
   if [ ! -d $ship ]; then
     args="-cA $(dirname $fleet_bin)/arvo $args"
-    if [ -z "$FAKE" ]; then
-      args="-G 0w0 $args"
-    fi
   fi
 elif [ 6 = ${#ship} ] || [ 13 = ${#ship} ] ; then
   if [ -d $ship ]; then args="$ship"
@@ -28,6 +25,6 @@ else
   exit 1
 fi
 if [ "$FAKE" ]; then
-  args="-F $args"
+  args="-NF $args"
 fi
 echo $args
