@@ -3,13 +3,29 @@ fleet_bin="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 set -e
 ship=$1
 shift
-if [ "$SCREEN"]; then
-  screen -Q 'select' -; screen -Q 'select' $ship >/dev/null && screen -X 'kill'
-  screen -X screen -t $ship
-  screen -X stuff "$fleet_bin/urbit $(printf '%s ' $@)\n"
+if [ "$SCREEN" ]; then
+  # start a screen session if none exists
+  if screen -ls > /dev/null; then
+    echo "screen session exists: $(screen -ls)\n"
+  else
+    echo "starting screen session\n"
+    screen -dmS default
+  fi
+
+  # switch to internal blank window
+  screen -Q 'select' -
+  # if we can switch to a screen window named after this ship, kill it.
+  screen -Q 'select' $ship >/dev/null && screen -X 'kill'
+  # make a new screen window named after this ship
+  screen -dmS $ship
+  # boot urbit within the new screen window, passing through our args.
+  screen -S $ship -X stuff "$fleet_bin/urbit $(printf '%s ' $@)\n"
+  echo "Launched ship in screen window: $ship"
 else
-  mkdir -p .scripts
-  script -t 1 .scripts/$ship $fleet_bin/urbit $@ &
+  mkdir -p scripts
+  script -t scripts/$ship $fleet_bin/urbit -- $@ &
 fi
-$fleet_bin/wait/next $ship/.urb/ports.json
+# previous invocation of ship would have created the ports file already,
+# so wait until it gets rewritten by the new urbit process.
+$fleet_bin/wait/next $ship/.http.ports
 $fleet_bin/wait/for $ship/home
