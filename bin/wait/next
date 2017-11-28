@@ -1,6 +1,7 @@
 #!/bin/bash
 for arg
 do
+  echo Waiting for new version of file $arg ...
   prev=$([ ! -f $arg ] || stat -c %Y $arg)
   until [ -f $arg ] && [ "$prev" != "$(stat -c %Y $arg)" ]
   do

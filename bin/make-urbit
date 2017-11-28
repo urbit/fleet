@@ -5,12 +5,14 @@ ship=$1
 echo >&2 Creating arguments for starting $ship
 args='TRAP'
 if [ 3 = ${#ship} ]; then
-  args="-B $URBIT_PILL -I $ship $ship"
-  if [ ! -d $ship ]; then
-    args="-cA $(dirname $fleet_bin)/arvo $args"
+  args="-I $ship"
+  if [ -d ships/$ship ]; then
+    args="$args ships/$ship"
+  else
+    args="$args -sA $(dirname $fleet_bin)/arvo -c ships/$ship"
   fi
 elif [ 6 = ${#ship} ] || [ 13 = ${#ship} ] ; then
-  if [ -d $ship ]; then args="$ship"
+  if [ -d ships/$ship ]; then args="ships/$ship"
   else
     sein=$($fleet_bin/urb -d "(sein ~$ship)" 2>/dev/null)  # XX figure out port
     if [ ! -d ${sein:1} ]; then

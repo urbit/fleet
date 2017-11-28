@@ -3,29 +3,29 @@ fleet_bin="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 set -e
 ship=$1
 shift
-if [ "$SCREEN" ]; then
-  # start a screen session if none exists
-  if screen -ls > /dev/null; then
-    echo "screen session exists: $(screen -ls)\n"
-  else
-    echo "starting screen session\n"
-    screen -dmS default
-  fi
 
-  # switch to internal blank window
-  screen -Q 'select' -
-  # if we can switch to a screen window named after this ship, kill it.
-  screen -Q 'select' $ship >/dev/null && screen -X 'kill'
-  # make a new screen window named after this ship
-  screen -dmS $ship
-  # boot urbit within the new screen window, passing through our args.
-  screen -S $ship -X stuff "$fleet_bin/urbit $(printf '%s ' $@)\n"
-  echo "Launched ship in screen window: $ship"
-else
-  mkdir -p scripts
-  script -t scripts/$ship $fleet_bin/urbit -- $@ &
+if ! which screen >/dev/null; then
+  printf "Error: GNU screen is not installed"
+  exit 1
 fi
+
+if screen -S $ship -X select .; then
+  printf "Killing previous screen session for $ship\n"
+  screen -X -S $ship quit
+fi
+
+printf "Booting Urbit in new screen session\n"
+screen -dmS $ship
+screen -S $ship -X stuff "$fleet_bin/urbit $(printf '%s ' $@)\n"
+printf "Launched ship in screen window: $ship\n"
+
 # previous invocation of ship would have created the ports file already,
 # so wait until it gets rewritten by the new urbit process.
-$fleet_bin/wait/next $ship/.http.ports
-$fleet_bin/wait/for $ship/home
+$fleet_bin/wait/next ships/$ship/.http.ports
+
+if [ ! -d ships/$ship/home ]; then
+  screen -S $ship -X stuff "|mount %\r\n"
+  $fleet_bin/wait/for ships/$ship/home
+fi
+
+printf "Ship ~$ship running.\n"

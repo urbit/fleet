@@ -1,6 +1,7 @@
 #!/bin/bash
 for arg
 do
+  echo Waiting for file $arg to exist ...
   until [ -d $arg ] || [ -f $arg ]
   do
        sleep 1
