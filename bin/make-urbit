@@ -1,5 +1,6 @@
 #!/bin/bash
 fleet_bin="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+printf "$fleet_bin\n" >&2
 set -e
 ship=$1
 echo >&2 Creating arguments for starting $ship
@@ -14,19 +15,21 @@ if [ 3 = ${#ship} ]; then
 elif [ 6 = ${#ship} ] || [ 13 = ${#ship} ] ; then
   if [ -d ships/$ship ]; then args="ships/$ship"
   else
-    sein=$($fleet_bin/urb -d "(sein ~$ship)" 2>/dev/null)  # XX figure out port
-    if [ ! -d ${sein:1} ]; then
+    printf "Finding parent for $ship\n" >&2
+    sein=$($fleet_bin/urb -d "(sein:title ~$ship)" 2>/dev/null)  # XX figure out port
+    printf "Parent: $sein\n" >&2
+    if [ ! -d ships/${sein:1} ]; then
       $fleet_bin/start-urbit ${sein:1}
     fi
-    ticket=$(urb ${sein:1} -d "+ticket ~$ship")
-    #
-    args="-cw $ship -t $ticket"
+    ticket=$($fleet_bin/urb ships/${sein:1} -d "+ticket ~$ship")
+    pill_path=ships/${sein:1}/.urb/urbit.pill
+    args="-B $pill_path -c ships/$ship -w $ship -t $ticket"
   fi
 else
   echo >&2 "Weird ship $ship, length ${#ship}"
   exit 1
 fi
 if [ "$FAKE" ]; then
-  args="-NF $args"
+  args="-F $args"  #  XX  use -N for multi-machine tests
 fi
 echo $args
