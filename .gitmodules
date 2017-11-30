@@ -1,9 +1,9 @@
 [submodule "arvo"]
 	path = arvo
-	url = https://github.com/ohAitch/base
+	url = https://github.com/urbit/arvo
 [submodule "urbit"]
 	path = urbit
-	url = https://github.com/ohAitch/urbit
+	url = https://github.com/urbit/urbit
 [submodule "urb-py"]
 	path = cli-urb
 	url = https://github.com/urbit/urb
