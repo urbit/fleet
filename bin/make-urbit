@@ -18,9 +18,20 @@ elif [ 6 = ${#ship} ] || [ 13 = ${#ship} ] || [ 27 == ${#ship} ] ; then
     printf "Finding parent for $ship\n" >&2
     sein=$($fleet_bin/urb -d "(sein:title ~$ship)" 2>/dev/null)  # XX figure out port
     printf "Parent: $sein\n" >&2
+
     if [ ! -d ships/${sein:1} ]; then
-      $fleet_bin/start-urbit ${sein:1}
+      printf "Error: parent ${sein} not started.\n" >&2
+      exit 1
     fi
+
+    sein_our=$($fleet_bin/urb ships/${sein:1} -d "our")
+    until [ "$sein" = $sein_our ]; do
+      printf "Parent $sein still thinks it's $sein_our. Waiting\n" >&2
+      sleep 1
+      sein_our=$($fleet_bin/urb ships/${sein:1} -d "our")
+    done
+    printf "Parent is ready..\n" >&2
+
     ticket=$($fleet_bin/urb ships/${sein:1} -d "+ticket ~$ship")
     pill_path=ships/${sein:1}/.urb/urbit.pill
     args="-B $pill_path -c ships/$ship -w $ship -t $ticket"
