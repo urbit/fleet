@@ -12,7 +12,7 @@ if [ 3 = ${#ship} ]; then
   else
     args="$args -sA $(dirname $fleet_bin)/arvo -c ships/$ship"
   fi
-elif [ 6 = ${#ship} ] || [ 13 = ${#ship} ] ; then
+elif [ 6 = ${#ship} ] || [ 13 = ${#ship} ] || [ 27 == ${#ship} ] ; then
   if [ -d ships/$ship ]; then args="ships/$ship"
   else
     printf "Finding parent for $ship\n" >&2
