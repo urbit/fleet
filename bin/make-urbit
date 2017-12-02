@@ -24,14 +24,6 @@ elif [ 6 = ${#ship} ] || [ 13 = ${#ship} ] || [ 27 == ${#ship} ] ; then
       exit 1
     fi
 
-    sein_our=$($fleet_bin/urb ships/${sein:1} -d "our")
-    until [ "$sein" = $sein_our ]; do
-      printf "Parent $sein still thinks it's $sein_our. Waiting\n" >&2
-      sleep 1
-      sein_our=$($fleet_bin/urb ships/${sein:1} -d "our")
-    done
-    printf "Parent is ready..\n" >&2
-
     ticket=$($fleet_bin/urb ships/${sein:1} -d "+ticket ~$ship")
     pill_path=ships/${sein:1}/.urb/urbit.pill
     args="-B $pill_path -c ships/$ship -w $ship -t $ticket"

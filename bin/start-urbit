@@ -10,18 +10,27 @@ if ! which screen >/dev/null; then
 fi
 
 if screen -S $ship -X select .; then
-  printf "Killing previous screen session for $ship\n"
+  printf "Killing previous screen session for ~$ship\n"
   screen -X -S $ship quit
 fi
 
 printf "Booting Urbit in new screen session\n"
 screen -dmS $ship
 screen -S $ship -X stuff "$fleet_bin/urbit $(printf '%s ' $@)\n"
-printf "Launched ship in screen window: $ship\n"
+printf "Launched ship in screen window: ~$ship\n"
 
 # previous invocation of ship would have created the ports file already,
 # so wait until it gets rewritten by the new urbit process.
 $fleet_bin/wait/next ships/$ship/.http.ports
+
+# wait for the ship to go from comet to its real identity.
+self_image=$($fleet_bin/urb ships/$ship -d "our")
+until [ "$ship" = ${self_image:1} ]; do
+  printf "~$ship still thinks it's $self_image. Waiting\n" >&2
+  sleep 1
+  self_image=$($fleet_bin/urb ships/$ship -d "our")
+done
+printf "~$ship has assumed its adult identity..\n" >&2
 
 if [ ! -d ships/$ship/home ]; then
   screen -S $ship -X stuff "|mount %\r\n"
