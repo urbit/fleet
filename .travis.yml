@@ -31,8 +31,9 @@ os:
 language: c # shell really
 before_script:
   - make -C urbit/
-  - cd arvo; git checkout $(git name-rev --name-only HEAD | sed sI.*/II) # XX branch name for -s
+  - git -C arvo/ checkout $(git -C arvo/ name-rev --name-only HEAD | sed sI.*/II) # XX branch name for -s
 script:
-  - bin/fake-urbit zod marzod
-  - '[ "~zod" = $(bin/urb ships/zod -d our) ]'
-  - '[ "~marzod" = $(bin/urb ships/zod -d our) ]'
+  >
+    bin/fake-urbit zod marzod &&
+    [ "~zod" = $(bin/urb ships/zod -d our) ] &&
+    [ "~marzod" = $(bin/urb ships/zod -d our) ]
