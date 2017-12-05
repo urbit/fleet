@@ -16,7 +16,7 @@ fi
 
 printf "Booting Urbit in new screen session\n"
 screen -dmS $ship
-screen -S $ship -X stuff "$fleet_bin/urbit $(printf '%s ' $@)\n"
+screen -S $ship -X stuff "cd ships; $fleet_bin/urbit $(printf '%s ' $@)\n"
 printf "Launched ship in screen window: ~$ship\n"
 
 # previous invocation of ship would have created the ports file already,

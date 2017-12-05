@@ -8,12 +8,12 @@ args='TRAP'
 if [ 3 = ${#ship} ]; then
   args="-I $ship"
   if [ -d ships/$ship ]; then
-    args="$args ships/$ship"
+    args="$args $ship"
   else
-    args="$args -sA $(dirname $fleet_bin)/arvo -c ships/$ship"
+    args="$args -sA $(dirname $fleet_bin)/arvo -c $ship"
   fi
 elif [ 6 = ${#ship} ] || [ 13 = ${#ship} ] || [ 27 == ${#ship} ] ; then
-  if [ -d ships/$ship ]; then args="ships/$ship"
+  if [ -d ships/$ship ]; then args="$ship"
   else
     printf "Finding parent for $ship\n" >&2
     sein=$($fleet_bin/urb -d "(sein:title ~$ship)" 2>/dev/null)  # XX figure out port
@@ -25,8 +25,8 @@ elif [ 6 = ${#ship} ] || [ 13 = ${#ship} ] || [ 27 == ${#ship} ] ; then
     fi
 
     ticket=$($fleet_bin/urb ships/${sein:1} -d "+ticket ~$ship")
-    pill_path=ships/${sein:1}/.urb/urbit.pill
-    args="-B $pill_path -c ships/$ship -w $ship -t $ticket"
+    pill_path=${sein:1}/.urb/urbit.pill
+    args="-B $pill_path -w $ship -t $ticket"
   fi
 else
   echo >&2 "Weird ship $ship, length ${#ship}"
