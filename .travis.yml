@@ -1,5 +1,3 @@
-language: c
-script: make -C urbit/
 notifications:
   email: false
 addons:
@@ -22,3 +20,19 @@ addons:
     - libcurl4-gnutls-dev
     - python
 
+os:
+  - linux
+#   - osx 
+# matrix:
+#   allow_failures:
+#     - os: osx
+# TODO manage packages
+    
+language: c # shell really
+before_script:
+  - make -C urbit/
+  - cd arvo; git checkout $(git name-rev --name-only HEAD | sed sI.*/II) # XX branch name for -s
+script:
+  - bin/fake-urbit zod marzod
+  - '[ "~zod" = $(bin/urb ships/zod -d our) ]'
+  - '[ "~marzod" = $(bin/urb ships/zod -d our) ]'
