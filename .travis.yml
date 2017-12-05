@@ -45,4 +45,4 @@ script:
   >
     bin/fake-urbit zod marzod &&
     [ "~zod" = $(bin/urb ships/zod -d our) ] &&
-    [ "~marzod" = $(bin/urb ships/zod -d our) ]
+    [ "~marzod" = $(bin/urb ships/marzod -d our) ]
