@@ -30,6 +30,7 @@ os:
     
 language: c # shell really
 before_script:
+  - sudo chmod 775 /var/run/screen
   - make -C urbit/
   - git -C arvo/ checkout $(git -C arvo/ name-rev --name-only HEAD | sed sI.*/II) # XX branch name for -s
 script:
