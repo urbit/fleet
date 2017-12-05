@@ -29,10 +29,18 @@ os:
 # TODO manage packages
     
 language: c # shell really
+cache:
+  directories: .travis-cache
 before_script:
-  - sudo chmod 775 /var/run/screen
-  - make -C urbit/
+  - >
+      mkdir urbit/bin;
+      CACHED=.travis-cache/$(git -C urbit/ rev-parse HEAD);
+      cp -p $CACHED-urbit urbit/bin || {
+       make -C urbit/ &&
+       cp urbit/bin/urbit $CACHED-urbit
+      }
   - git -C arvo/ checkout $(git -C arvo/ name-rev --name-only HEAD | sed sI.*/II) # XX branch name for -s
+  - sudo chmod 775 /var/run/screen # XX screen seems to be broken by default
 script:
   >
     bin/fake-urbit zod marzod &&
