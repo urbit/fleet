@@ -39,7 +39,6 @@ before_script:
        make -C urbit/ &&
        cp urbit/bin/urbit $CACHED-urbit
       }
-  - git -C arvo/ checkout $(git -C arvo/ name-rev --name-only HEAD | sed sI.*/II) # XX branch name for -s
   - sudo chmod 775 /var/run/screen # XX screen seems to be broken by default
 script:
   >
